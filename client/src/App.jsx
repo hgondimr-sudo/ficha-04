@@ -2,20 +2,21 @@ import { useState, useEffect } from "react";
 import Card from "./Card.jsx";
 
 function App() {
-  // 1. Criar o estado para as cartas (começa vazio) e remover o array estático 'cards'
   const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true); // 1. Criar o estado de loading
   
   const [filter, setFilter] = useState("Todas");
   const [search, setSearch] = useState("");
   const [randomCard, setRandomCard] = useState(null);
   const [sorted, setSorted] = useState(false);
 
-  // 2. Usar o useEffect para ir buscar os dados ao servidor via fetch
+  // 2. Usar o useEffect com .finally() para desligar o loading
   useEffect(() => {
     fetch("http://localhost:3000/api/cartas")
       .then((res) => res.json())
       .then((data) => setCards(data))
-      .catch((err) => console.error("Erro ao carregar cartas:", err));
+      .catch((err) => console.error("Erro ao carregar cartas:", err))
+      .finally(() => setLoading(false)); // 3. Desativa o loading independentemente do sucesso/erro
   }, []);
 
   let visible = cards
@@ -27,8 +28,13 @@ function App() {
   }
 
   function pickRandom() {
-    if (cards.length ===  0) return;
+    if (cards.length === 0) return;
     setRandomCard(cards[Math.floor(Math.random() * cards.length)]);
+  }
+
+  // 4. Se estiver a carregar, mostra a mensagem pedida
+  if (loading) {
+    return <main><p>A carregar...</p></main>;
   }
 
   return (
