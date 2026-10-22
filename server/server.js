@@ -53,7 +53,11 @@ app.get("/cartas", (req, res) => {
   res.send(page("Cartas", `<ul>${items}</ul>`));
 });
 
-app.get("/cartas/aleatoria", (req, res) => {
+app.get('/api/cartas', (req, res) => {
+  res.json(cards);
+});
+
+app.get('/cartas/aleatoria', (req, res) => {
   const card = cards[Math.floor(Math.random() * cards.length)];
 
   res.send(page(
