@@ -3,21 +3,41 @@ import Card from "./Card.jsx";
 
 function App() {
   const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(true); // 1. Criar o estado de loading
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // 1. Estado para guardar o erro
   
   const [filter, setFilter] = useState("Todas");
   const [search, setSearch] = useState("");
   const [randomCard, setRandomCard] = useState(null);
   const [sorted, setSorted] = useState(false);
 
-  // 2. Usar o useEffect com .finally() para desligar o loading
   useEffect(() => {
+    // Podes testar mudar o URL para "http://localhost:3000/api/cartass" para ver o 404
     fetch("http://localhost:3000/api/cartas")
-      .then((res) => res.json())
+      .then((res) => {
+        // 2. Se o servidor responder com erro (ex: 404 ou 500), lançar um erro
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => setCards(data))
-      .catch((err) => console.error("Erro ao carregar cartas:", err))
-      .finally(() => setLoading(false)); // 3. Desativa o loading independentemente do sucesso/erro
+      .catch((err) => {
+        // 3. Capturar o erro e guardá-lo no estado
+        setError(err.message);
+      })
+      .finally(() => setLoading(false));
   }, []);
+
+  // Se estiver a carregar
+  if (loading) {
+    return <main><p>A carregar...</p></main>;
+  }
+
+  // 4. Se houver um erro, mostrar a mensagem de erro
+  if (error) {
+    return <main><p>Erro: {error}</p></main>;
+  }
 
   let visible = cards
     .filter((card) => filter === "Todas" || card.type === filter)
@@ -30,11 +50,6 @@ function App() {
   function pickRandom() {
     if (cards.length === 0) return;
     setRandomCard(cards[Math.floor(Math.random() * cards.length)]);
-  }
-
-  // 4. Se estiver a carregar, mostra a mensagem pedida
-  if (loading) {
-    return <main><p>A carregar...</p></main>;
   }
 
   return (

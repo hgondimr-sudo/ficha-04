@@ -58,6 +58,15 @@ app.get('/api/cartas', (req, res) => {
   res.json(cards);
 });
 
+app.use((req, res) => {
+  res.set("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.status(404).send(page(
+    "404 — não encontrado",
+    `<p>Não existe nada em <code>${req.url}</code>.</p>
+     <p><a href="/">Voltar ao início</a></p>`
+  ));
+});
+
 app.get('/cartas/aleatoria', (req, res) => {
   const card = cards[Math.floor(Math.random() * cards.length)];
 
